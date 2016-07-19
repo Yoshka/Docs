@@ -16,6 +16,7 @@ public class _Views_Home_Test_cshtml : RazorPage<dynamic>
         Write(GetHello());
         WriteLiteral("</div>\r\n");
     }
+#pragma warning restore 1998
 }
 
 

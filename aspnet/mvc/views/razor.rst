@@ -34,39 +34,21 @@ Razor can transition from HTML into C# or into Razor specific markup. When an ``
 Razor expressions
 ---------------------
 
-Implicit Razor expressions start with ``@`` followed by C# code. Explicit Razor expressions start with ``@`` and are in a block enclosed by ``()`` or ``{}``. For example:
-
-.. literalinclude:: razor/sample/Views/Home/Contact.cshtml
-  :language: html
-  :start-after: }
-  :end-before: @* End of greeting *@ 
-
-Renders this HTML markup:
+Implicit Razor expressions start with ``@`` followed by C# code. For example:
 
 .. code-block:: none
 
-  <!-- Single statement blocks, explicit.  -->
-  
-  <!-- Inline expressions, implicit. -->
-  <p>The value of your account is: 7 </p>
-  <p>The value of myMessage is: Hello World</p>
-  
-  <!-- Multi-statement block, explicit.  -->
-  <p>The greeting is :<br /> Welcome! Today is: Monday -Leap year: True</p>
+  <p>@DateTime.Now</p>
+  <p>@DateTime.IsLeapYear(2016)</p>
 
-Which is rendered by a browser as:
-
-.. image:: razor/_static/r1.png
-  :scale: 100
-
-Explicit expressions generally cannot contain spaces. For example, in the code below, one week is not subtracted from the current time:
+Implicit expressions generally cannot contain spaces. For example, in the code below, one week is not subtracted from the current time:
 
 .. literalinclude:: razor/sample/Views/Home/Contact.cshtml
   :language: html
   :start-after: @* End of greeting *@ 
   :end-before: @*Add () to get correct time.*@
 
-Will render the following HTML:
+Which renders the following HTML:
 
 .. code-block:: none
  
@@ -88,8 +70,24 @@ Which renders the following HTML:
   <p>
     Last week: 6/30/2016 4:39:52 PM
  </p>
+ 
+Explicit Razor code blocks start with ``@`` and are enclosed by ``()`` or ``{}``. For example:
 
-.. review comment: I removed "unless dictated by the calling of a method". How is that dictated? Need to explain that if we want to add it back.
+.. literalinclude:: razor/sample/Views/Home/Contact.cshtml
+  :language: html
+  :start-after: }
+  :end-before: @* End of greeting *@ 
+
+Renders this HTML markup:
+
+.. code-block:: none
+
+  <!-- Single statement blocks, explicit.  -->
+  
+  <!-- Multi-statement block, explicit.  -->
+    <p>The greeting is :<br /> Welcome! Today is: Monday -Leap year: True</p>
+    <p>The value of your account is: 7 </p>
+    <p>The value of myMessage is: Hello Hello World</p>
 
 With the exception of the C# ``await`` keyword implicit expressions must not contain spaces. For example, you can intermingle spaces as long as the C# statement has a clear ending:
 
@@ -109,12 +107,10 @@ would render the following HTML:
  
  <p>@Username</p> 
 
-.. review: Doesn't Razor treat anything that looks like an email alias as email? Not just in HTML attributes?
-
 .. _razor-email-ref:
 
-``@`` used in an email alias
------------------------------
+``@`` in an email alias
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML attributes containing email addresses don’t treat the ``@`` symbol as a transition character.
 
@@ -172,21 +168,19 @@ Non-:dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent` content is HTML encoded.
 
 .. code-block:: none
 
-  @("<div>Hello World</div>") 
+  @("<span>Hello World</span>") 
 
 Renders this HTML:
 
 .. code-block:: none
 
-  &lt;div&gt;Hello World&lt;/div&gt;
+  &lt;span&gt;Hello World&lt;/span&gt;
   
 Which the browser renders as:
 
-``<div>Hello World</div>)`` 
+``<span>Hello World</span>`` 
 
-:dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` :dn:method:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.Raw` wraps the HTML markup in an :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` instance so that it is not encoded but rendered as HTML markup. :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` implements :dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent`
-
-.. review note: The following was approved by blowdart/barry
+:dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` :dn:method:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.Raw` output is not encoded but rendered as HTML markup. :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` implements :dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent`
 
 .. warning:: Using ``HtmlHelper.Raw`` on unsanitzed user input is a security risk. User input might contain malicious JavaScript or other exploits. Sanitizing user input is difficult, avoid using ``HtmlHelper.Raw`` on user input.
 
@@ -194,17 +188,16 @@ The following Razor markup:
 
 .. code-block:: none
 
-  @Html.Raw("<div>Hello World</div>") 
+  @Html.Raw("<span>Hello World</span>") 
 
 Renders this HTML:
 
 .. code-block:: none
 
-  <div>Hello World</div> 
+  <span>Hello World</span> 
   
 Which the browser renders as:
 ``Hello World`` 
-
 
 Rendering markup in code blocks and implicit transition
 -------------------------------------------------------
@@ -230,7 +223,7 @@ To define a sub-section of a code block that should render HTML, surround the ch
   /* C# */<text>I'm HTML</text>/* C# */
   }
 
-Which renders ``I'm HTML``. You generally use this approach when you want to render HTML that is not surrounded by an HTML tag.
+Which renders ``I'm HTML`` without the ``text`` tags. You generally use this approach when you want to render HTML that is not surrounded by an HTML tag.
 
 .. _Explicit-Line-Transition-label:
 
@@ -488,8 +481,6 @@ Razor directives are represented by implicit expressions with reserved keywords 
  
 The Razor markup above will generate a class similar to the following:
 
-.. review: I copy/pasted from what was generated so my call differs from your version.
-
 .. code-block:: c#
 
   public class _Views_Something_cshtml : RazorPage<dynamic>
@@ -511,15 +502,13 @@ The Razor markup above will generate a class similar to the following:
 
 The ``@using`` directive will add the c# ``using`` directive to the generated razor page:
 
-.. review: You had @using System.Collections.Generic - but that's included in the Razor page.
-
 .. literalinclude:: razor/sample/Views/Home/Contact9.cshtml
   :language: html
   
 ``@model``
 ^^^^^^^^^^^^
 
-The ``@model`` directive allows you to specify the type of the model past to your Razor page. It uses the following syntax:
+The ``@model`` directive allows you to specify the type of the model passed to your Razor page. It uses the following syntax:
 
 .. code-block:: none
 
@@ -560,12 +549,6 @@ The ``@inherits`` directive is similar to the model directive. ``@inherits`` giv
 
  @inherits TypeNameOfClassToInheritFrom 
  
-.. review note: couldn't get non-generic to work. Test with http://localhost:24694/home/contact/11
-  public abstract class CustomRazorPage2 : RazorPage
-  {
-         public string CustomText { get; } = "CustomRazorPage2.";
-  }
-
 For instance, let’s say we had the following custom Razor page type:
 
 .. literalinclude:: razor/sample/Classes/CustomRazorPage.cs
@@ -576,7 +559,7 @@ The following Razor would generate ``<div>Custom text: Hello World</div>``.
 .. literalinclude:: razor/sample/Views/Home/Contact10.cshtml
   :language: html
 
-The ``@inherits`` keyword is not allowed when ``@model`` is used. You can pass a model as shown with the following Razor page (when passed "Rick@Example.com" in the model):
+The ``@inherits`` keyword is not allowed on the same page with the ``@model`` statement. You can pass a model as shown with the following Razor page (when passed "Rick@contoso.com" in the model):
 
 .. literalinclude:: razor/sample/Views/Home/Login1.cshtml
   :language: html
@@ -586,7 +569,7 @@ Generates this HTML:
 
 .. code-block:: none
 
-  <div>The Login Email: Rick@Example.com</div>
+  <div>The Login Email: Rick@contoso.com</div>
   <div>Custom text: Hello Hello World.</div>
 
 .. review: Adding the model to _ViewImports is not needed. We don't need it to pass a model.
@@ -596,7 +579,7 @@ While you can't use ``@model`` and ``@inherits`` on the same page, you can have 
 .. literalinclude:: razor/sample/Views/_ViewImportsModel.cshtml
   :language: html
   
-The following Razor page, when passed "Rick@Example.com" in the model:
+The following Razor page, when passed "Rick@contoso.com" in the model:
 
 .. literalinclude:: razor/sample/Views/Home/Login2.cshtml
   :language: html
@@ -605,15 +588,12 @@ Generates this HTML markup:
 
 .. code-block:: none
 
-  <div>The Login Email: Rick@Example.com</div>
+  <div>The Login Email: Rick@contoso.com</div>
   <div>Custom text: Hello World</div>
 
 ``@inject``
 ^^^^^^^^^^^^^^
 The ``@inject`` directive enables you to inject a service from your :doc:`service container </fundamentals/dependency-injection>`  into your Razor page for use. See :doc:`/mvc/views/dependency-injection`.
-
-.. review: Replaced  ``TModel`` token 
-  with ``TModel`` type parameter
 
 Much like ``@inherits`` you can also provide the ``TModel`` parameter if your service happens to depend on the current model type:
 
@@ -636,7 +616,7 @@ If you inject a property that already exists on your Razor page and has been ``@
 - Url
 - :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.ModelExpressionProvider`
 
-Your ``@inject`` statement will override that property and it won't be available on the page.
+Your ``@inject`` statement will override that property and it will be available as the overridden type.
 
 ``@functions``
 ^^^^^^^^^^^^^^
@@ -691,31 +671,7 @@ The following :doc:`/mvc/views/tag-helpers/index` directives are detailed in the
 - :ref:`@addTagHelper <addTagHelper-Razor-Directives-label>`
 - :ref:`@removeTagHelper <removeTagHelper-Razor-Directives-label>`
 - :ref:`@tagHelperPrefix <tagHelperPrefix-Razor-Directives-label>`
-
-Working with ``/`` and ``"``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To display a backslash character ``/`` or double quotation marks ``"``, use a verbatim string literal that's prefixed with the @ operator. In C#, the ``/`` character has special meaning unless you use a verbatim string literal. 
-
-.. code-block:: none
-
-  <!-- Embedding a backslash in a string -->
-  @{ var myFilePath = @"C:/MyFolder/"; }
-  <p>The path is: @myFilePath</p>
-
-To embed double quotation marks, use a verbatim string literal and repeat the quotation marks:
-
-.. code-block:: none
-
-  <!-- Embedding double quotation marks in a string -->
-  @{ var myQuote = @"The person said: ""Hello, today is Monday."""; }
-  <p>@myQuote</p>
-
-The browser rendering of the above Razor markup:
-
-.. image:: razor/_static/r2.png
-  :scale: 100  
-  
+ 
 .. _Razor-reserved-keywords-label:  
   
 Razor reserved keywords
@@ -754,7 +710,6 @@ Reserved keywords not used by Razor
 
 - namespace
 - class
-- layout
 
 The following sample show all the Razor reserved words escaped:
 

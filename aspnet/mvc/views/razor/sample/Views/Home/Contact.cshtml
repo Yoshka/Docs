@@ -5,20 +5,18 @@
 @{ var total = 7; }
 @{ var myMessage = "Hello World"; }
 
-<!-- Inline expressions, implicit. -->
-<p>The value of your account is: @total </p>
-<p>The value of myMessage is: @myMessage</p>
-
 <!-- Multi-statement block, explicit.  -->
-@* Razor comment.  *@
 @{
     var greeting = "Welcome!";
     var weekDay = DateTime.Now.DayOfWeek;
     var leapYear = DateTime.IsLeapYear(DateTime.Now.Year);
     var greetingMessage = greeting + " Today is: " + weekDay
         + " -Leap year: " + leapYear;
+
+    <p>The greeting is :<br /> @greetingMessage</p>
+    <p>The value of your account is: @total </p>
+    <p>The value of myMessage is: @myMessage</p>
 }
-<p>The greeting is :<br /> @greetingMessage</p>
 @* End of greeting *@
 
 <p>
@@ -35,11 +33,11 @@
 
 <br /><br />
 
-@("<div>Hello World</div>")
+@("<span>Hello World</span>")
 
 <br /><br />
 
-@Html.Raw("<div>Hello World</div>")
+@Html.Raw("<span>Hello World</span>")
 
 <br /><br />
 
