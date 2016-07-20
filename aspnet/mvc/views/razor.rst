@@ -124,10 +124,6 @@ Renders this HTML:
 
   &lt;span&gt;Hello World&lt;/span&gt;
 
-Which the browser renders as:
-
-``<span>Hello World</span>``
-
 :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` :dn:method:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.Raw` output is not encoded but rendered as HTML markup. :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` implements :dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent`
 
 .. warning:: Using ``HtmlHelper.Raw`` on unsanitzed user input is a security risk. User input might contain malicious JavaScript or other exploits. Sanitizing user input is difficult, avoid using ``HtmlHelper.Raw`` on user input.
@@ -172,7 +168,7 @@ Renders this HTML markup:
 Implicit transitions
 ^^^^^^^^^^^^^^^^^^^^^
 
-The default languge in a code block is C#, but you can transition back to HTML. HTML within a code block will transition back into rendering HTML:
+The default language in a code block is C#, but you can transition back to HTML. HTML within a code block will transition back into rendering HTML:
 
 .. code-block:: none
 
@@ -187,53 +183,18 @@ Explicit delimited transition
 To define a sub-section of a code block that should render HTML, surround the characters to be rendered with the ``<text>`` tag:
 
 .. code-block:: none
-
-  @{
-  /* C# */<text>I'm HTML</text>/* C# */
-  }
-
-Which renders ``I'm HTML`` without the ``text`` tags. You generally use this approach when you want to render HTML that is not surrounded by an HTML tag.
-
-.. _Explicit-Line-Transition-label:
-
-Explicit Line Transition with ``@:``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To render an entire line inside of a code block, utilize the ``@:`` characters:
-
-.. code-block:: none
-
-  @{
-  /* Still C# */@: <p>Hello World</p> /* This is not C#, it's HTML */
-  }
-
-Which renders the following HTML:
-
-.. code-block:: none
-
-  <p>Hello World</p> /* This is not C#, it's HTML */
-
-And is rendered in a browser as:
-
-.. code-block:: none
-
-  Hello World
-
-  /* This is not C#, it's HTML */
-
-Consider the following Razor markup which renders a list of names:
-
-.. code-block:: none
+  :emphasize-lines: 4
 
   @for (var i = 0; i < people.Length; i++)
   {
       var person = people[i];
-      <p>Name: @person.Name</p>
+      <text>Name: @person.Name</text>
   }
 
-HTML tags (``<p> </p>`` in the sample, but any HTML tags will do) provide a boundry for Razor to transition into C#. But suppose you wanted to render the names **without** HTML tags? The following code generates a Razor compilation error:
+You generally use this approach when you want to render HTML that is not surrounded by an HTML tag. Without HTML tags, you get a Razor runtime error:
 
 .. code-block:: none
+  :emphasize-lines: 4
 
   @for (var i = 0; i < people.Length; i++)
   {
@@ -241,7 +202,23 @@ HTML tags (``<p> </p>`` in the sample, but any HTML tags will do) provide a boun
       Name: @person.Name
   }
 
-Use the ``@:`` characters to specify that Razor should transition from C# to text:
+.. _Explicit-Line-Transition-label:
+
+Explicit Line Transition with ``@:``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Typically, HTML tags provide a boundary for Razor to transition into C#:
+
+.. code-block:: none
+  :emphasize-lines: 4
+
+  @for (var i = 0; i < people.Length; i++)
+  {
+      var person = people[i];
+      <text>Name: @person.Name</text>
+  }
+
+To render the Razor above without HTML tags, use the ``@:`` characters:
 
 .. code-block:: none
   :emphasize-lines: 4
@@ -252,9 +229,17 @@ Use the ``@:`` characters to specify that Razor should transition from C# to tex
       @:Name: @person.Name
   }
 
-  Consider the following Razor markup:
+Without the ``@:`` in the code above, you'd get a Razor run time error.
+
+.. _Explicit-email-override-label:
+
+``@()`` explicit expression to override email @ symbol
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Consider the following Razor markup:
 
 .. code-block:: none
+  :emphasize-lines: 5
 
   @{
       var joe = new Person("Joe", 33);
@@ -262,9 +247,10 @@ Use the ``@:`` characters to specify that Razor should transition from C# to tex
 
   <p>Age @joe.Age</p>
 
-Predictably, the server renders ``<p>Age 33</p>``. But suppose you needed to concatenate the output to get ``Age33`` with no space between "Age" and "33". The following markup:
+Predictably, the server renders ``<p>Age 33</p>``. But suppose you need to concatenate the output to get ``Age33`` with no space between "Age" and "33". The following markup:
 
 .. code-block:: none
+  :emphasize-lines: 5
 
   @{
       var joe = new Person("Joe", 33);
@@ -424,7 +410,6 @@ Compound using statements can be used to represent scoping. For instance, we can
 
 You can also perform scope level actions like the above with :doc:`/mvc/views/tag-helpers/index`.
 
-
 ``@try``, ``catch``, ``finally``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -576,7 +561,7 @@ Generates this HTML:
 .. code-block:: none
 
   <div>The Login Email: Rick@contoso.com</div>
-  <div>Custom text: Hello Hello World.</div>
+  <div>Custom text: Hello World.</div>
 
 .. review: Adding the model to _ViewImports is not needed. We don't need it to pass a model.
 
@@ -667,8 +652,6 @@ For example:
       <script src="~/js/site.js"></script>
   }
 
-
-
 TagHelpers
 -----------
 
@@ -692,7 +675,7 @@ Razor keywords
 - section
 - helper   (Not supported by ASP.NET Core.)
 
-Razor keyworks can be escaped with ``@(Razor Keyword)``, for example ``@(functions)``. See the complete sample below.
+Razor keywords can be escaped with ``@(Razor Keyword)``, for example ``@(functions)``. See the complete sample below.
 
 C# Razor keywords
 ^^^^^^^^^^^^^^^^^^
@@ -709,7 +692,7 @@ C# Razor keywords
 - using
 - while
 
-C# Razor keyworks need to be double escaped with ``@(@C# Razor Keyword)``, for example ``@(@case)``. The first ``@`` escapes the Razor parser, the second ``@`` escapes the C# parser. See the complete sample below.
+C# Razor keywords need to be double escaped with ``@(@C# Razor Keyword)``, for example ``@(@case)``. The first ``@`` escapes the Razor parser, the second ``@`` escapes the C# parser. See the complete sample below.
 
 Reserved keywords not used by Razor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
