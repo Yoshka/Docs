@@ -1,11 +1,11 @@
-Razor Syntax Reference    
+Razor Syntax Reference
 ===========================
 `Taylor Mullen <https://twitter.com/ntaylormullen>`__, and `Rick Anderson`_
 
 .. contents:: Sections
   :local:
   :depth: 1
-  
+
 What is Razor?
 --------------
 Razor is a markup syntax for embedding server based code into web pages. The Razor syntax consists of Razor markup, C# and HTML. Files containing Razor generally have a *.cshtml* file extension.
@@ -13,7 +13,7 @@ Razor is a markup syntax for embedding server based code into web pages. The Raz
 .. contents:: Sections:
   :local:
   :depth: 1
-  
+
 Rendering HTML
 --------------
 
@@ -21,18 +21,39 @@ The default Razor language is HTML. Rendering HTML from Razor is no different th
 
 .. code-block:: none
 
-  <p>Hello World</p> 
+  <p>Hello World</p>
 
 Is rendered unchanged as ``<p>Hello World</p>`` by the server.
 
 Rendering server code
 ----------------------
 
-Razor supports C# and uses the ``@`` symbol to transition from HTML to C#. 
-Razor can transition from HTML into C# or into Razor specific markup. When an ``@`` symbol is followed by a :ref:`Razor reserved keyword <Razor-reserved-keywords-label>` it transitions into Razor specific markup, otherwise it transitions into plain C# . 
+Razor supports C# and uses the ``@`` symbol to transition from HTML to C#.
+Razor can transition from HTML into C# or into Razor specific markup. When an ``@`` symbol is followed by a :ref:`Razor reserved keyword <Razor-reserved-keywords-label>` it transitions into Razor specific markup, otherwise it transitions into plain C# .
 
-Razor expressions
----------------------
+HTML containing ``@`` symbols may need to be escaped with a second ``@`` symbol. For example:
+
+.. code-block:: none
+
+ <p>@@Username</p>
+
+would render the following HTML:
+
+.. code-block:: none
+
+ <p>@Username</p>
+
+.. _razor-email-ref:
+
+``@`` in an email alias
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+HTML attributes containing email addresses don’t treat the ``@`` symbol as a transition character.
+
+ ``<a href="mailto:Support@contoso.com">Support@contoso.com</a>``
+
+Implicit Razor expressions
+---------------------------
 
 Implicit Razor expressions start with ``@`` followed by C# code. For example:
 
@@ -45,13 +66,13 @@ Implicit expressions generally cannot contain spaces. For example, in the code b
 
 .. literalinclude:: razor/sample/Views/Home/Contact.cshtml
   :language: html
-  :start-after: @* End of greeting *@ 
+  :start-after: @* End of greeting *@
   :end-before: @*Add () to get correct time.*@
 
 Which renders the following HTML:
 
 .. code-block:: none
- 
+
   <p>
     Last week: 7/7/2016 4:39:52 PM - TimeSpan.FromDays(7)
   </p>
@@ -63,31 +84,13 @@ Adding parenthesis fixes the problem:
   :start-after: @*Add () to get correct time.*@
   :end-before: @*End of correct time*@
 
-Which renders the following HTML:  
+Which renders the following HTML:
 
 .. code-block:: none
 
   <p>
     Last week: 6/30/2016 4:39:52 PM
  </p>
- 
-Explicit Razor code blocks start with ``@`` and are enclosed by ``()`` or ``{}``. For example:
-
-.. literalinclude:: razor/sample/Views/Home/Contact.cshtml
-  :language: html
-  :start-after: }
-  :end-before: @* End of greeting *@ 
-
-Renders this HTML markup:
-
-.. code-block:: none
-
-  <!-- Single statement blocks, explicit.  -->
-  
-  <!-- Multi-statement block, explicit.  -->
-    <p>The greeting is :<br /> Welcome! Today is: Monday -Leap year: True</p>
-    <p>The value of your account is: 7 </p>
-    <p>The value of myMessage is: Hello Hello World</p>
 
 With the exception of the C# ``await`` keyword implicit expressions must not contain spaces. For example, you can intermingle spaces as long as the C# statement has a clear ending:
 
@@ -95,72 +98,17 @@ With the exception of the C# ``await`` keyword implicit expressions must not con
 
   <p>@await DoSomething("hello", "world")</p>
 
-HTML containing ``@`` symbols may need to be escaped with a second ``@`` symbol. For example:
-  
-.. code-block:: none
+Explicit Razor expressions
+----------------------------
 
- <p>@@Username</p> 
- 
-would render the following HTML:
-
-.. code-block:: none
- 
- <p>@Username</p> 
-
-.. _razor-email-ref:
-
-``@`` in an email alias
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-HTML attributes containing email addresses don’t treat the ``@`` symbol as a transition character.
-
- ``<a href="mailto:Support@contoso.com">Support@contoso.com</a>``
-
-Consider the following Razor markup:
+Explicit Razor expressions consists of an @ symbol with balanced parenthesis. For example, to render last weeks’ time:
 
 .. code-block:: none
 
-  @{
-      var joe = new Person("Joe", 33);
-   }
-  
-  <p>Age @joe.Age</p>
+  <p>Last week this time: @(DateTime.Now - TimeSpan.FromDays(7))</p>
 
-Predictably, the server renders ``<p>Age 33</p>``. But suppose you needed to concatenate the output to get ``Age33`` with no space between "Age" and "33". The following markup:
+Any content within the @() parenthesis is evaluated and rendered to the output.
 
-.. code-block:: none
-
-  @{
-      var joe = new Person("Joe", 33);
-   }
-  
-  <p>Age@joe.Age</p>
-
-generates:
-
-.. code-block:: none
-
-  <p>Age@joe.Age</p>
-
-Razor is treating ``Age@joe.Age`` as an email alias. In cases like this, create an explicit expression with ``@()``:
-
-.. code-block:: none
-
- <p>Age@(joe.Age)</p>
- 
-Which renders
-
-.. code-block:: none
-
-  <p>Age33</p>
-  
-Explict Razor statement blocks surrounded by ``{}`` contain normal C# and therefore each C# statement must be terminated with the ``;`` character. Implict statements don't use ``;`` termination:
-
-.. literalinclude:: razor/sample/Views/Home/Contact.cshtml
-  :language: html
-  :start-after: }
-  :end-before: @* End of greeting *@ 
- 
 Expression encoding
 -------------------
 
@@ -168,17 +116,17 @@ Non-:dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent` content is HTML encoded.
 
 .. code-block:: none
 
-  @("<span>Hello World</span>") 
+  @("<span>Hello World</span>")
 
 Renders this HTML:
 
 .. code-block:: none
 
   &lt;span&gt;Hello World&lt;/span&gt;
-  
+
 Which the browser renders as:
 
-``<span>Hello World</span>`` 
+``<span>Hello World</span>``
 
 :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` :dn:method:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper.Raw` output is not encoded but rendered as HTML markup. :dn:cls:`~Microsoft.AspNetCore.Mvc.ViewFeatures.HtmlHelper` implements :dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent`
 
@@ -188,21 +136,43 @@ The following Razor markup:
 
 .. code-block:: none
 
-  @Html.Raw("<span>Hello World</span>") 
+  @Html.Raw("<span>Hello World</span>")
 
 Renders this HTML:
 
 .. code-block:: none
 
-  <span>Hello World</span> 
-  
+  <span>Hello World</span>
+
 Which the browser renders as:
-``Hello World`` 
+``Hello World``
 
-Rendering markup in code blocks and implicit transition
--------------------------------------------------------
+Razor code blocks
+------------------
 
-The default languge in a code block is c#, but you can transition back to HTML. HTML within a code block will transition back into rendering HTML:
+Razor code blocks start with ``@`` and are enclosed by ``{}``. Unlike expressions, C# code inside code blocks is not rendered.
+
+.. comment: sample shows var defined in first code block available in 2nd block. Some customer confusion on that.
+
+.. literalinclude:: razor/sample/Views/Home/Contact.cshtml
+  :language: html
+  :start-after: }
+  :end-before: @* End of greeting *@
+
+Renders this HTML markup:
+
+.. code-block:: none
+
+  <!-- Single statement blocks.  -->
+
+  <!-- Multi-statement block.  -->
+      <p>The greeting is :<br /> Welcome! Today is: Tuesday -Leap year: True</p>
+      <p>The value of your account is: 7 </p>
+
+Implicit transitions
+^^^^^^^^^^^^^^^^^^^^^
+
+The default languge in a code block is C#, but you can transition back to HTML. HTML within a code block will transition back into rendering HTML:
 
 .. code-block:: none
 
@@ -210,7 +180,6 @@ The default languge in a code block is c#, but you can transition back to HTML. 
       var inCSharp = true;
       <p>Now in HTML, was in C# @inCSharp</p>
   }
-
 
 Explicit delimited transition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,15 +212,15 @@ Which renders the following HTML:
 .. code-block:: none
 
   <p>Hello World</p> /* This is not C#, it's HTML */
-  
+
 And is rendered in a browser as:
- 
+
 .. code-block:: none
 
   Hello World
 
-  /* This is not C#, it's HTML */ 
-  
+  /* This is not C#, it's HTML */
+
 Consider the following Razor markup which renders a list of names:
 
 .. code-block:: none
@@ -283,7 +252,43 @@ Use the ``@:`` characters to specify that Razor should transition from C# to tex
       @:Name: @person.Name
   }
 
-  
+  Consider the following Razor markup:
+
+.. code-block:: none
+
+  @{
+      var joe = new Person("Joe", 33);
+   }
+
+  <p>Age @joe.Age</p>
+
+Predictably, the server renders ``<p>Age 33</p>``. But suppose you needed to concatenate the output to get ``Age33`` with no space between "Age" and "33". The following markup:
+
+.. code-block:: none
+
+  @{
+      var joe = new Person("Joe", 33);
+   }
+
+  <p>Age@joe.Age</p>
+
+generates:
+
+.. code-block:: none
+
+  <p>Age@joe.Age</p>
+
+Razor is treating ``Age@joe.Age`` as an email alias. In cases like this, create an explicit expression with ``@()``:
+
+.. code-block:: none
+
+ <p>Age@(joe.Age)</p>
+
+Which renders
+
+.. code-block:: none
+
+  <p>Age33</p>
 Control Structures
 ------------------
 
@@ -317,7 +322,7 @@ The ``@if`` family controls when code runs:
  {
      <p>The value was not large and is odd.</p>
  }
- 
+
 ``@switch``
 ^^^^^^^^^^^^^
 
@@ -335,7 +340,7 @@ The ``@if`` family controls when code runs:
          <p>Your number was not 1 or 1337.</p>
          break;
  }
- 
+
 Looping ``@for``, ``@foreach``, ``@while``, and ``@do while``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -350,7 +355,7 @@ You can render templated HTML with looping control statements. For example, to r
             new Person("Doe", 41),
       };
   }
-  
+
 ``@for``
 ^^^^^^^^^
 
@@ -385,7 +390,7 @@ You can render templated HTML with looping control statements. For example, to r
       var person = people[i];
       <p>Name: @person.Name</p>
       <p>Age: @person.Age</p>
-  
+
       i++;
   }
 
@@ -400,7 +405,7 @@ You can render templated HTML with looping control statements. For example, to r
       var person = people[i];
       <p>Name: @person.Name</p>
       <p>Age: @person.Age</p>
-  
+
       i++;
   } while (i < people.Length);
 
@@ -419,7 +424,7 @@ Compound using statements can be used to represent scoping. For instance, we can
 You can also perform scope level actions like the above with :doc:`/mvc/views/tag-helpers/index`.
 
 
-``@try``, ``catch``, ``finally`` 
+``@try``, ``catch``, ``finally``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Exception handling is similar to  C#:
@@ -478,7 +483,7 @@ Razor directives are represented by implicit expressions with reserved keywords 
 
 .. literalinclude:: razor/sample/Views/Home/Contact8.cshtml
   :language: html
- 
+
 The Razor markup above will generate a class similar to the following:
 
 .. code-block:: c#
@@ -488,15 +493,15 @@ The Razor markup above will generate a class similar to the following:
       public override async Task ExecuteAsync()
       {
           var output = "Hello World";
-  
+
           WriteLiteral("/r/n<div>Output: ");
           Write(output);
           WriteLiteral("</div>");
       }
   }
-   
+
 :ref:`Razor-CustomCompilationService-label` explains how to view this generated class. Understanding how Razor generates code for a view will make it easier to understand how directives work.
-   
+
 ``@using``
 ^^^^^^^^^^^^^
 
@@ -504,7 +509,7 @@ The ``@using`` directive will add the c# ``using`` directive to the generated ra
 
 .. literalinclude:: razor/sample/Views/Home/Contact9.cshtml
   :language: html
-  
+
 ``@model``
 ^^^^^^^^^^^^
 
@@ -512,7 +517,7 @@ The ``@model`` directive allows you to specify the type of the model passed to y
 
 .. code-block:: none
 
-  @model TypeNameOfModel<TModel> 
+  @model TypeNameOfModel<TModel>
 
 For example, if you create a new ASP.NET Core MVC app with individual user accounts, the *Views/Account/Login.cshtml* Razor view file contains the follow model declaration:
 
@@ -525,20 +530,20 @@ In the class example in :ref:`Razor-Directives-label`, the class generated inher
 .. code-block:: c#
 
   @model LoginViewModel
-  
+
 Generates the following class
 
 .. code-block:: c#
 
- public class _Views_Account_Login_cshtml : RazorPage<LoginViewModel> 
- 
+ public class _Views_Account_Login_cshtml : RazorPage<LoginViewModel>
+
 This allows you to access the strongly typed model in your Razor page through the ``Model`` property:
 
 .. code-block:: none
 
   <div>The Login Email: @Model.Email</div>
-  
-Obviously you must pass the model from your controller to the view. See :ref:`Strongly-typed-models-keyword-label` for more information.
+
+Obviously you must pass the model from the controller to the view. See :ref:`Strongly-typed-models-keyword-label` for more information.
 
 ``@inherits``
 ^^^^^^^^^^^^^^^
@@ -547,8 +552,8 @@ The ``@inherits`` directive is similar to the model directive. ``@inherits`` giv
 
 .. code-block:: none
 
- @inherits TypeNameOfClassToInheritFrom 
- 
+ @inherits TypeNameOfClassToInheritFrom
+
 For instance, let’s say we had the following custom Razor page type:
 
 .. literalinclude:: razor/sample/Classes/CustomRazorPage.cs
@@ -564,7 +569,7 @@ The ``@inherits`` keyword is not allowed on the same page with the ``@model`` st
 .. literalinclude:: razor/sample/Views/Home/Login1.cshtml
   :language: html
   :lines: 1-
-  
+
 Generates this HTML:
 
 .. code-block:: none
@@ -578,12 +583,12 @@ While you can't use ``@model`` and ``@inherits`` on the same page, you can have 
 
 .. literalinclude:: razor/sample/Views/_ViewImportsModel.cshtml
   :language: html
-  
+
 The following Razor page, when passed "Rick@contoso.com" in the model:
 
 .. literalinclude:: razor/sample/Views/Home/Login2.cshtml
   :language: html
-  
+
 Generates this HTML markup:
 
 .. code-block:: none
@@ -602,12 +607,12 @@ Much like ``@inherits`` you can also provide the ``TModel`` parameter if your se
   @inject IHtmlHelper<TModel> CustomHtmlHelper
 
   @CustomHtmlHelper.Raw("<div>Hello World</div>")
-  
+
 An additional feature of ``@inject`` is that it also enables you to replace a few properties that are automatically injected into a Razor page. For instance, we could replace the Html property on our Razor page with the hosting environment:
 
 .. literalinclude:: razor/sample/Views/Home/Contact4.cshtml
   :language: html
-  
+
 If you inject a property that already exists on your Razor page and has been ``@injected`` before, or is one of the following properties:
 
 - Html
@@ -652,11 +657,11 @@ The ``@section`` directive is used in conjunction with the :doc:`layout page </m
 .. code-block:: none
 
   @section SectionName { Razor Code }
-  
+
 For example:
 
 .. code-block:: none
-  
+
   @section Scripts {
       <script src="~/js/site.js"></script>
   }
@@ -671,9 +676,9 @@ The following :doc:`/mvc/views/tag-helpers/index` directives are detailed in the
 - :ref:`@addTagHelper <addTagHelper-Razor-Directives-label>`
 - :ref:`@removeTagHelper <removeTagHelper-Razor-Directives-label>`
 - :ref:`@tagHelperPrefix <tagHelperPrefix-Razor-Directives-label>`
- 
-.. _Razor-reserved-keywords-label:  
-  
+
+.. _Razor-reserved-keywords-label:
+
 Razor reserved keywords
 ------------------------
 
@@ -715,7 +720,7 @@ The following sample show all the Razor reserved words escaped:
 
 .. literalinclude:: razor/sample/Views/Home/Contact5.cshtml
   :language: html
-  
+
 .. _Razor-CustomCompilationService-label:
 
 Viewing the Razor C# class generated for a view
@@ -733,7 +738,7 @@ Override the :dn:iface:`~Microsoft.AspNetCore.Mvc.Razor.Compilation.ICompilation
   :dedent: 8
   :emphasize-lines: 4
 
-Set a break point on the ``Compile`` method of ``CustomCompilationService`` and view ``compilationContent``. 
+Set a break point on the ``Compile`` method of ``CustomCompilationService`` and view ``compilationContent``.
 
 .. image:: razor/_static/tvr.png
   :scale: 100

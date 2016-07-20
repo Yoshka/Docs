@@ -1,11 +1,10 @@
 ﻿@{
     Layout = null;
 }
-<!-- Single statement blocks, explicit.  -->
+<!-- Single statement blocks.  -->
 @{ var total = 7; }
-@{ var myMessage = "Hello World"; }
 
-<!-- Multi-statement block, explicit.  -->
+<!-- Multi-statement block.  -->
 @{
     var greeting = "Welcome!";
     var weekDay = DateTime.Now.DayOfWeek;
@@ -15,7 +14,6 @@
 
     <p>The greeting is :<br /> @greetingMessage</p>
     <p>The value of your account is: @total </p>
-    <p>The value of myMessage is: @myMessage</p>
 }
 @* End of greeting *@
 
@@ -130,3 +128,12 @@ else
    *@
 
   <!-- HTML comment 2 -->
+
+
+
+<!-- Single statement blocks.  -->
+
+<!-- Multi-statement block.  -->
+    <p>The greeting is :<br /> Welcome! Today is: Tuesday -Leap year: True</p>
+    <p>The value of your account is: 7 </p>
+    <p>The value of myMessage is: Hello World</p>
