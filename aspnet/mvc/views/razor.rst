@@ -529,6 +529,10 @@ This allows you to access the strongly typed model in your Razor page through th
 
   <div>The Login Email: @Model.Email</div>
 
+-  Strongly-typed-models-keyword-label
+- :ref:`Strongly-typed-models-keyword-label`
+- :ref:`Strongly-typed-models-keyword-label`
+  
 Obviously you must pass the model from the controller to the view. See :ref:`Strongly-typed-models-keyword-label` for more information.
 
 ``@inherits``
