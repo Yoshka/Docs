@@ -19,34 +19,32 @@ Rendering HTML
 
 The default Razor language is HTML. Rendering HTML from Razor is no different than in an HTML file. A Razor file with the following markup:
 
-.. code-block:: none
+.. code-block:: html
 
   <p>Hello World</p>
 
 Is rendered unchanged as ``<p>Hello World</p>`` by the server.
 
-Rendering server code
+Razor syntax
 ----------------------
 
-Razor supports C# and uses the ``@`` symbol to transition from HTML to C#.
-Razor can transition from HTML into C# or into Razor specific markup. When an ``@`` symbol is followed by a :ref:`Razor reserved keyword <Razor-reserved-keywords-label>` it transitions into Razor specific markup, otherwise it transitions into plain C# .
+Razor supports C# and uses the ``@`` symbol to transition from HTML to C#. Razor evaluates C# expressions and renders them in the HTML output. Razor can transition from HTML into C# or into Razor specific markup. When an ``@`` symbol is followed by a :ref:`Razor reserved keyword <Razor-reserved-keywords-label>` it transitions into Razor specific markup, otherwise it transitions into plain C# .
+
+.. _escape-at-label:
 
 HTML containing ``@`` symbols may need to be escaped with a second ``@`` symbol. For example:
 
-.. code-block:: none
+.. code-block:: html
 
  <p>@@Username</p>
 
 would render the following HTML:
 
-.. code-block:: none
+.. code-block:: html
 
  <p>@Username</p>
 
 .. _razor-email-ref:
-
-``@`` in an email alias
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML attributes containing email addresses don’t treat the ``@`` symbol as a transition character.
 
@@ -57,7 +55,7 @@ Implicit Razor expressions
 
 Implicit Razor expressions start with ``@`` followed by C# code. For example:
 
-.. code-block:: none
+.. code-block:: html
 
   <p>@DateTime.Now</p>
   <p>@DateTime.IsLeapYear(2016)</p>
@@ -71,56 +69,52 @@ Implicit expressions generally cannot contain spaces. For example, in the code b
 
 Which renders the following HTML:
 
-.. code-block:: none
+.. code-block:: html
 
-  <p>
-    Last week: 7/7/2016 4:39:52 PM - TimeSpan.FromDays(7)
-  </p>
+  <p>Last week: 7/7/2016 4:39:52 PM - TimeSpan.FromDays(7)</p>
 
-Adding parenthesis fixes the problem:
+Using parenthesis fixes the problem:
 
 .. literalinclude:: razor/sample/Views/Home/Contact.cshtml
   :language: html
   :start-after: @*Add () to get correct time.*@
   :end-before: @*End of correct time*@
 
-Which renders the following HTML:
-
-.. code-block:: none
-
-  <p>
-    Last week: 6/30/2016 4:39:52 PM
- </p>
-
+.. tip:: You can use C# expressions in Razor that contain spaces using an :ref:`explicit expression <explicit-razor-expressions>`.
+  
 With the exception of the C# ``await`` keyword implicit expressions must not contain spaces. For example, you can intermingle spaces as long as the C# statement has a clear ending:
 
-.. code-block:: none
+.. code-block:: html
 
   <p>@await DoSomething("hello", "world")</p>
+
+.. _explicit-razor-expressions:
 
 Explicit Razor expressions
 ----------------------------
 
 Explicit Razor expressions consists of an @ symbol with balanced parenthesis. For example, to render last weeks’ time:
 
-.. code-block:: none
+.. code-block:: html
 
   <p>Last week this time: @(DateTime.Now - TimeSpan.FromDays(7))</p>
 
 Any content within the @() parenthesis is evaluated and rendered to the output.
+
+.. _expression-encoding-label:
 
 Expression encoding
 -------------------
 
 Non-:dn:iface:`~Microsoft.AspNetCore.Html.IHtmlContent` content is HTML encoded. For example, the following Razor markup:
 
-.. code-block:: none
+.. code-block:: html
 
   @("<span>Hello World</span>")
 
 Renders this HTML:
 
-.. code-block:: none
+.. code-block:: html
 
   &lt;span&gt;Hello World&lt;/span&gt;
 
@@ -130,18 +124,20 @@ Renders this HTML:
 
 The following Razor markup:
 
-.. code-block:: none
+.. code-block:: html
 
   @Html.Raw("<span>Hello World</span>")
 
 Renders this HTML:
 
-.. code-block:: none
+.. code-block:: html
 
   <span>Hello World</span>
 
 Which the browser renders as:
 ``Hello World``
+
+.. _razor-code-blocks-label:
 
 Razor code blocks
 ------------------
@@ -157,7 +153,7 @@ Razor code blocks start with ``@`` and are enclosed by ``{}``. Unlike expression
 
 Renders this HTML markup:
 
-.. code-block:: none
+.. code-block:: html
 
   <!-- Single statement blocks.  -->
 
@@ -165,6 +161,8 @@ Renders this HTML markup:
       <p>The greeting is :<br /> Welcome! Today is: Tuesday -Leap year: True</p>
       <p>The value of your account is: 7 </p>
 
+.. _implicit-transitions-label:
+  
 Implicit transitions
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -176,6 +174,8 @@ The default language in a code block is C#, but you can transition back to HTML.
       var inCSharp = true;
       <p>Now in HTML, was in C# @inCSharp</p>
   }
+
+.. _explicit-delimited-transition-label:
 
 Explicit delimited transition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -202,7 +202,7 @@ You generally use this approach when you want to render HTML that is not surroun
       Name: @person.Name
   }
 
-.. _Explicit-Line-Transition-label:
+.. _explicit-line-transition-with-label:
 
 Explicit Line Transition with ``@:``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -231,7 +231,7 @@ To render the Razor above without HTML tags, use the ``@:`` characters:
 
 Without the ``@:`` in the code above, you'd get a Razor run time error.
 
-.. _Explicit-email-override-label:
+.. _explicit-email-override-label:
 
 ``@()`` explicit expression to override email @ symbol
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -275,6 +275,8 @@ Which renders
 .. code-block:: none
 
   <p>Age33</p>
+
+.. _control-structures-razor-label:
 
 Control Structures
 ------------------
@@ -461,7 +463,7 @@ Razor comments are removed by the server before the page is rendered. Razor uses
     <!-- HTML comment -->
    *@
 
-.. _Razor-Directives-label:
+.. _razor-directives-label:
 
 Directives
 -----------
@@ -486,7 +488,7 @@ The Razor markup above will generate a class similar to the following:
       }
   }
 
-:ref:`Razor-CustomCompilationService-label` explains how to view this generated class. Understanding how Razor generates code for a view will make it easier to understand how directives work.
+:ref:`razor-customcompilationservice-label` explains how to view this generated class. Understanding how Razor generates code for a view will make it easier to understand how directives work.
 
 ``@using``
 ^^^^^^^^^^^^^
@@ -511,7 +513,7 @@ For example, if you create a new ASP.NET Core MVC app with individual user accou
 
   @model LoginViewModel
 
-In the class example in :ref:`Razor-Directives-label`, the class generated inherits from ``RazorPage<dynamic>``. By adding an ``@model`` you control what’s inherited. For example
+In the class example in :ref:`razor-directives-label`, the class generated inherits from ``RazorPage<dynamic>``. By adding an ``@model`` you control what’s inherited. For example
 
 .. code-block:: c#
 
@@ -528,12 +530,8 @@ This allows you to access the strongly typed model in your Razor page through th
 .. code-block:: none
 
   <div>The Login Email: @Model.Email</div>
-
--  Strongly-typed-models-keyword-label
-- :ref:`Strongly-typed-models-keyword-label`
-- :ref:`Strongly-typed-models-keyword-label`
   
-Obviously you must pass the model from the controller to the view. See :ref:`Strongly-typed-models-keyword-label` for more information.
+Obviously you must pass the model from the controller to the view. See :ref:`strongly-typed-models-keyword-label` for more information.
 
 ``@inherits``
 ^^^^^^^^^^^^^^^
@@ -585,6 +583,7 @@ Generates this HTML markup:
 
   <div>The Login Email: Rick@contoso.com</div>
   <div>Custom text: Hello World</div>
+
 
 ``@inject``
 ^^^^^^^^^^^^^^
@@ -661,9 +660,9 @@ TagHelpers
 
 The following :doc:`/mvc/views/tag-helpers/index` directives are detailed in the links provided.
 
-- :ref:`@addTagHelper <addTagHelper-Razor-Directives-label>`
-- :ref:`@removeTagHelper <removeTagHelper-Razor-Directives-label>`
-- :ref:`@tagHelperPrefix <tagHelperPrefix-Razor-Directives-label>`
+- :ref:`@addTagHelper <addTagHelper-razor-directives-label>`
+- :ref:`@removeTagHelper <removeTagHelper-razor-directives-label>`
+- :ref:`@tagHelperPrefix <tagHelperPrefix-razor-directives-label>`
 
 .. _Razor-reserved-keywords-label:
 
@@ -709,7 +708,7 @@ The following sample show all the Razor reserved words escaped:
 .. literalinclude:: razor/sample/Views/Home/Contact5.cshtml
   :language: html
 
-.. _Razor-CustomCompilationService-label:
+.. _razor-customcompilationservice-label:
 
 Viewing the Razor C# class generated for a view
 ------------------------------------------------
