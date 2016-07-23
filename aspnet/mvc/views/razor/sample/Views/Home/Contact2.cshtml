@@ -47,3 +47,13 @@
       var dir = Directory.GetCurrentDirectory();
   }
   <p>@dir</p>
+
+
+  @for (var i = 0; i < people.Length; i++)
+  {
+      var person = people[i];
+      <text>Name: @person.Name</text>
+      <!-- Removing HTML tags generates a Razor runtime error
+        Name: @person.Name
+      -->
+  }
